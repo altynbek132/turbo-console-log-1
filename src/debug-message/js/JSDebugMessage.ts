@@ -51,6 +51,7 @@ export class JSDebugMessage extends DebugMessage {
       lineCodeProcessing,
     );
   }
+  private quote = '`';
   private baseDebuggingMsg(
     document: TextDocument,
     textEditor: TextEditorEdit,
@@ -94,13 +95,11 @@ export class JSDebugMessage extends DebugMessage {
     debuggingMsgContent: string,
     spacesBeforeMsg: string,
   ): string {
-    const wrappingMsg = `console.${extensionProperties.logType}(${
-      extensionProperties.quote
-    }${extensionProperties.logMessagePrefix} ${'-'.repeat(
-      debuggingMsgContent.length - 16,
-    )}${extensionProperties.logMessagePrefix}${extensionProperties.quote})${
-      extensionProperties.addSemicolonInTheEnd ? ';' : ''
-    }`;
+    const wrappingMsg = `console.${extensionProperties.logType}(${this.quote}${
+      extensionProperties.logMessagePrefix
+    } ${'-'.repeat(debuggingMsgContent.length - 16)}${
+      extensionProperties.logMessagePrefix
+    }${this.quote})${extensionProperties.addSemicolonInTheEnd ? ';' : ''}`;
     const debuggingMsg: string = extensionProperties.wrapLogMessage
       ? `${spacesBeforeMsg}${wrappingMsg}\n${spacesBeforeMsg}${debuggingMsgContent}\n${spacesBeforeMsg}${wrappingMsg}`
       : `${spacesBeforeMsg}${debuggingMsgContent}`;
@@ -136,7 +135,7 @@ export class JSDebugMessage extends DebugMessage {
       extensionProperties.logFunction !== 'log'
         ? extensionProperties.logFunction
         : `console.${extensionProperties.logType}`
-    }(${extensionProperties.quote}${extensionProperties.logMessagePrefix}${
+    }(${this.quote}${extensionProperties.logMessagePrefix}${
       extensionProperties.logMessagePrefix.length !== 0 &&
       extensionProperties.logMessagePrefix !==
         `${extensionProperties.delimiterInsideMessage} `
@@ -161,9 +160,9 @@ export class JSDebugMessage extends DebugMessage {
           ? `${funcThatEncloseTheVar} ${extensionProperties.delimiterInsideMessage} `
           : ''
         : ''
-    }${selectedVar}${extensionProperties.logMessageSuffix}${
-      extensionProperties.quote
-    }, ${selectedVar})${semicolon}`;
+    }${selectedVar}${extensionProperties.logMessageSuffix} \${${selectedVar}}${
+      this.quote
+    })${semicolon}`;
   }
 
   private emptyBlockDebuggingMsg(

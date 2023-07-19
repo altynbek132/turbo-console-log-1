@@ -2,7 +2,7 @@
   "name": "turbo-console-log-custom",
   "displayName": "Turbo Console Log with Dart support",
   "description": "Automating the process of writing meaningful log messages.",
-  "version": "2.9.6",
+  "version": "2.9.7",
   "publisher": "altynbek132",
   "bugs": {
     "url": "https://github.com/altynbek132/turbo-console-log-1/issues",
