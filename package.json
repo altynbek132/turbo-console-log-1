@@ -3,7 +3,7 @@
   "displayName": "Turbo Console Log",
   "description": "Automating the process of writing meaningful log messages.",
   "version": "2.9.6",
-  "publisher": "ChakrounAnas",
+  "publisher": "altynbek132",
   "engines": {
     "vscode": "^1.50.0"
   },
@@ -105,19 +105,19 @@
     "commands": [
       {
         "command": "turboConsoleLog.displayLogMessage",
-        "title": "Turbo Console Log: Display Log Message"
+        "title": "Turbo Console Log: Display Log Message!"
       },
       {
         "command": "turboConsoleLog.commentAllLogMessages",
-        "title": "Turbo Console Log: Comment All Log Messages"
+        "title": "Turbo Console Log: Comment All Log Messages!"
       },
       {
         "command": "turboConsoleLog.uncommentAllLogMessages",
-        "title": "Turbo Console Log: Uncomment All Log Messages"
+        "title": "Turbo Console Log: Uncomment All Log Messages!"
       },
       {
         "command": "turboConsoleLog.deleteAllLogMessages",
-        "title": "Turbo Console Log: Delete All Log Messages"
+        "title": "Turbo Console Log: Delete All Log Messages!"
       }
     ],
     "keybindings": [
