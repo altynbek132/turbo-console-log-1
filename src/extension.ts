@@ -1,31 +1,67 @@
 import * as vscode from 'vscode';
-import { DebugMessage } from './debug-message';
 import { JSDebugMessage } from './debug-message/js';
 import { Command, ExtensionProperties } from './entities';
-import { LineCodeProcessing } from './line-code-processing';
 import { JSLineCodeProcessing } from './line-code-processing/js';
 import { getAllCommands } from './commands/';
-import { DebugMessageLine } from './debug-message/DebugMessageLine';
 import { JSDebugMessageLine } from './debug-message/js/JSDebugMessageLine';
+import { getLangId } from './utilities/helpers';
+import { DartDebugMessage } from './debug-message/dart/DartDebugMessage';
+import { DartDebugMessageLine } from './debug-message/dart/DartDebugMessageLine';
 
 export function activate(): void {
-  const jsLineCodeProcessing: LineCodeProcessing = new JSLineCodeProcessing();
-  const debugMessageLine: DebugMessageLine = new JSDebugMessageLine(
-    jsLineCodeProcessing,
-  );
-  const jsDebugMessage: DebugMessage = new JSDebugMessage(
-    jsLineCodeProcessing,
-    debugMessageLine,
-  );
   const config: vscode.WorkspaceConfiguration =
     vscode.workspace.getConfiguration('turboConsoleLog');
   const properties: ExtensionProperties = getExtensionProperties(config);
   const commands: Array<Command> = getAllCommands();
   for (const { name, handler } of commands) {
     vscode.commands.registerCommand(name, (args: unknown[]) => {
-      handler(properties, jsDebugMessage, args);
+      if (getLangId() == 'dart') {
+        handler(
+          properties,
+          new DartDebugMessage(
+            new JSLineCodeProcessing(),
+            new DartDebugMessageLine(new JSLineCodeProcessing()),
+          ),
+          args,
+        );
+        return;
+      }
+      if (
+        containsAny(getLangId() ?? '', [
+          'javascript',
+          'typescript',
+          'vue',
+          'react',
+          'svelte',
+          'jsx',
+          'tsx',
+          'javascriptreact',
+          'typescriptreact',
+          'js',
+          'ts',
+        ])
+      ) {
+        jsHandler();
+        return;
+      }
+      jsHandler();
+
+      function jsHandler() {
+        handler(
+          properties,
+          new JSDebugMessage(
+            new JSLineCodeProcessing(),
+            new JSDebugMessageLine(new JSLineCodeProcessing()),
+          ),
+          args,
+        );
+      }
     });
   }
+}
+
+function containsAny(str: string, needles: string[]) {
+  return needles.map((needle) => str.includes(needle)).includes(true);
 }
 
 function getExtensionProperties(
