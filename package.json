@@ -1,9 +1,17 @@
 {
-  "name": "turbo-console-log",
-  "displayName": "Turbo Console Log",
+  "name": "turbo-console-log-custom",
+  "displayName": "Turbo Console Log with Dart support",
   "description": "Automating the process of writing meaningful log messages.",
   "version": "2.9.6",
   "publisher": "altynbek132",
+  "bugs": {
+    "url": "https://github.com/altynbek132/turbo-console-log-1/issues",
+    "email": "altynbek.ktl@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/altynbek132/turbo-console-log-1"
+  },
   "engines": {
     "vscode": "^1.50.0"
   },
@@ -177,20 +185,6 @@
     "vscode-test": "^1.4.0"
   },
   "license": "SEE LICENSE IN LICENSE.txt",
-  "bugs": {
-    "url": "https://github.com/Chakroun-Anas/turbo-console-log/issues",
-    "email": "chakroun.anas@outlook.com"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Chakroun-Anas/turbo-console-log"
-  },
-  "__metadata": {
-    "id": "6623619a-676d-4cde-943f-a3c193b44fc0",
-    "publisherDisplayName": "ChakrounAnas",
-    "publisherId": "4fecec8e-335d-44fc-ab16-5356745fb1ac",
-    "isPreReleaseVersion": false
-  },
   "dependencies": {
     "lodash": "^4.17.21"
   }
