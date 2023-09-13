@@ -4,6 +4,14 @@
 
 This extension make debugging much easier by automating the operation of writing meaningful log message.
 
+
+## Changes in this fork
+
+- Empty line debug message (ctrl+alt+L)
+- Dart support (not full)
+
+
+
 ## Features
 
 ---
