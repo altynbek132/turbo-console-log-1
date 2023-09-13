@@ -40,6 +40,16 @@ export function displayLogMessageCommand(): Command {
               extensionProperties,
             );
           });
+        } else {
+          await editor.edit((editBuilder) => {
+            jsDebugMessage.debugLine(
+              editBuilder,
+              document,
+              lineOfSelectedVar,
+              tabSize,
+              extensionProperties,
+            );
+          });
         }
       }
     },

@@ -31,6 +31,13 @@ export abstract class DebugMessage {
     tabSize: number,
     extensionProperties: ExtensionProperties,
   ): void;
+  abstract debugLine(
+    textEditor: TextEditorEdit,
+    document: TextDocument,
+    lineNumber: number,
+    tabSize: number,
+    extensionProperties: ExtensionProperties,
+  ): void;
   abstract detectAll(
     document: TextDocument,
     logFunction: string,

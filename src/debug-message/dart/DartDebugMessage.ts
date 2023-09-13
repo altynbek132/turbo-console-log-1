@@ -140,31 +140,82 @@ export class DartDebugMessage extends DebugMessage {
     }(${quote}${extensionProperties.logMessagePrefix}${
       extensionProperties.logMessagePrefix.length !== 0 &&
       extensionProperties.logMessagePrefix !==
-        `${extensionProperties.delimiterInsideMessage} `
-        ? ` ${extensionProperties.delimiterInsideMessage} `
+        `${extensionProperties.delimiterInsideMessage}`
+        ? `${extensionProperties.delimiterInsideMessage}`
         : ''
     }${
       extensionProperties.includeFileNameAndLineNum
-        ? `file: ${fileName}:${
+        ? `${fileName}:${
             lineOfLogMsg +
             (extensionProperties.insertEmptyLineBeforeLogMessage ? 2 : 1)
-          } ${extensionProperties.delimiterInsideMessage} `
+          }${extensionProperties.delimiterInsideMessage}`
         : ''
     }${
       extensionProperties.insertEnclosingClass
         ? classThatEncloseTheVar.length > 0
-          ? `${classThatEncloseTheVar} ${extensionProperties.delimiterInsideMessage} `
+          ? `${classThatEncloseTheVar}${extensionProperties.delimiterInsideMessage}`
           : ``
         : ''
     }${
       extensionProperties.insertEnclosingFunction
         ? funcThatEncloseTheVar.length > 0
-          ? `${funcThatEncloseTheVar} ${extensionProperties.delimiterInsideMessage} `
+          ? `${funcThatEncloseTheVar}${extensionProperties.delimiterInsideMessage}`
           : ''
         : ''
     }${selectedVar}${
       extensionProperties.logMessageSuffix
     } \${${selectedVar}}${quote})${semicolon}`;
+  }
+  private constructDebuggingLineMsgContent(
+    document: TextDocument,
+    lineOfSelectedVar: number,
+    lineOfLogMsg: number,
+    extensionProperties: Omit<
+      ExtensionProperties,
+      'wrapLogMessage' | 'insertEmptyLineAfterLogMessage'
+    >,
+  ): string {
+    const quote = extensionProperties.quote;
+    const fileName = document.fileName.includes('/')
+      ? document.fileName.split('/')[document.fileName.split('/').length - 1]
+      : document.fileName.split('\\')[document.fileName.split('\\').length - 1];
+    const funcThatEncloseTheVar: string = this.enclosingBlockName(
+      document,
+      lineOfSelectedVar,
+      'function',
+    );
+    const classThatEncloseTheVar: string = this.enclosingBlockName(
+      document,
+      lineOfSelectedVar,
+      'class',
+    );
+    const semicolon: string = extensionProperties.addSemicolonInTheEnd
+      ? ';'
+      : '';
+    return `${
+      extensionProperties.logFunction !== 'log'
+        ? extensionProperties.logFunction
+        : `console.${extensionProperties.logType}`
+    }(${quote}${extensionProperties.logMessagePrefix}${
+      extensionProperties.logMessagePrefix.length !== 0 &&
+      extensionProperties.logMessagePrefix !==
+        `${extensionProperties.delimiterInsideMessage}`
+        ? `${extensionProperties.delimiterInsideMessage}`
+        : ''
+    }${
+      extensionProperties.includeFileNameAndLineNum
+        ? `${fileName}:${
+            lineOfLogMsg +
+            (extensionProperties.insertEmptyLineBeforeLogMessage ? 2 : 1)
+          }${extensionProperties.delimiterInsideMessage}`
+        : ''
+    }${
+      extensionProperties.insertEnclosingClass
+        ? classThatEncloseTheVar.length > 0
+          ? `${classThatEncloseTheVar}${extensionProperties.delimiterInsideMessage}`
+          : ``
+        : ''
+    }${quote})${semicolon}`;
   }
 
   private emptyBlockDebuggingMsg(
@@ -272,42 +323,45 @@ export class DartDebugMessage extends DebugMessage {
       debuggingMsgContent,
       spacesBeforeMsg,
     );
+    this.baseDebuggingMsg(
+      document,
+      textEditor,
+      lineOfLogMsg,
+      debuggingMsg,
+      extensionProperties.insertEmptyLineBeforeLogMessage,
+      extensionProperties.insertEmptyLineAfterLogMessage,
+    );
+  }
+  debugLine(
+    textEditor: TextEditorEdit,
+    document: TextDocument,
+    lineOfSelectedVar: number,
+    tabSize: number,
+    extensionProperties: ExtensionProperties,
+  ): void {
     const selectedVarLine = document.lineAt(lineOfSelectedVar);
-    const selectedVarLineLoc = selectedVarLine.text;
-    if (this.isEmptyBlockContext(document, logMsg)) {
-      const emptyBlockLine =
-        logMsg.logMessageType === LogMessageType.MultilineParenthesis
-          ? document.lineAt(
-              (logMsg.metadata as LogParenthesisMetadata)
-                .closingParenthesisLine,
-            )
-          : document.lineAt((logMsg.metadata as NamedFunctionMetadata).line);
-      this.emptyBlockDebuggingMsg(
-        document,
-        textEditor,
-        emptyBlockLine,
-        lineOfLogMsg,
-        debuggingMsgContent,
-        spacesBeforeMsg,
-      );
-      return;
-    }
-    if (
-      this.jsDebugMessageAnonymous.isAnonymousFunctionContext(
-        selectedVar,
-        selectedVarLineLoc,
-      )
-    ) {
-      this.jsDebugMessageAnonymous.anonymousPropDebuggingMsg(
-        document,
-        textEditor,
-        tabSize,
-        extensionProperties.addSemicolonInTheEnd,
-        selectedVarLine,
-        debuggingMsgContent,
-      );
-      return;
-    }
+    const selectedVarLineLocEmpty = selectedVarLine.text.trim() === '';
+    const lineOfLogMsg: number =
+      lineOfSelectedVar + (selectedVarLineLocEmpty ? 0 : 1);
+    const spacesBeforeMsg: string = this.spacesBeforeLogMsg(
+      document,
+      lineOfSelectedVar,
+      lineOfLogMsg,
+    );
+    const debuggingMsgContent: string = this.constructDebuggingLineMsgContent(
+      document,
+      lineOfSelectedVar,
+      lineOfLogMsg,
+      omit(extensionProperties, [
+        'wrapLogMessage',
+        'insertEmptyLineAfterLogMessage',
+      ]),
+    );
+    const debuggingMsg: string = this.constructDebuggingMsg(
+      extensionProperties,
+      debuggingMsgContent,
+      spacesBeforeMsg,
+    );
     this.baseDebuggingMsg(
       document,
       textEditor,

@@ -138,31 +138,87 @@ export class JSDebugMessage extends DebugMessage {
     }(${this.quote}${extensionProperties.logMessagePrefix}${
       extensionProperties.logMessagePrefix.length !== 0 &&
       extensionProperties.logMessagePrefix !==
-        `${extensionProperties.delimiterInsideMessage} `
-        ? ` ${extensionProperties.delimiterInsideMessage} `
+        `${extensionProperties.delimiterInsideMessage}`
+        ? `${extensionProperties.delimiterInsideMessage}`
         : ''
     }${
       extensionProperties.includeFileNameAndLineNum
-        ? `file: ${fileName}:${
+        ? `${fileName}:${
             lineOfLogMsg +
             (extensionProperties.insertEmptyLineBeforeLogMessage ? 2 : 1)
-          } ${extensionProperties.delimiterInsideMessage} `
+          }${extensionProperties.delimiterInsideMessage}`
         : ''
     }${
       extensionProperties.insertEnclosingClass
         ? classThatEncloseTheVar.length > 0
-          ? `${classThatEncloseTheVar} ${extensionProperties.delimiterInsideMessage} `
+          ? `${classThatEncloseTheVar}${extensionProperties.delimiterInsideMessage}`
           : ``
         : ''
     }${
       extensionProperties.insertEnclosingFunction
         ? funcThatEncloseTheVar.length > 0
-          ? `${funcThatEncloseTheVar} ${extensionProperties.delimiterInsideMessage} `
+          ? `${funcThatEncloseTheVar}${extensionProperties.delimiterInsideMessage}`
           : ''
         : ''
     }${selectedVar}${extensionProperties.logMessageSuffix} \${${selectedVar}}${
       this.quote
     })${semicolon}`;
+  }
+  private constructDebuggingLineMsgContent(
+    document: TextDocument,
+    lineOfSelectedVar: number,
+    lineOfLogMsg: number,
+    extensionProperties: Omit<
+      ExtensionProperties,
+      'wrapLogMessage' | 'insertEmptyLineAfterLogMessage'
+    >,
+  ): string {
+    const fileName = document.fileName.includes('/')
+      ? document.fileName.split('/')[document.fileName.split('/').length - 1]
+      : document.fileName.split('\\')[document.fileName.split('\\').length - 1];
+    const funcThatEncloseTheVar: string = this.enclosingBlockName(
+      document,
+      lineOfSelectedVar,
+      'function',
+    );
+    const classThatEncloseTheVar: string = this.enclosingBlockName(
+      document,
+      lineOfSelectedVar,
+      'class',
+    );
+    const semicolon: string = extensionProperties.addSemicolonInTheEnd
+      ? ';'
+      : '';
+    return `${
+      extensionProperties.logFunction !== 'log'
+        ? extensionProperties.logFunction
+        : `console.${extensionProperties.logType}`
+    }(${this.quote}${extensionProperties.logMessagePrefix}${
+      extensionProperties.logMessagePrefix.length !== 0 &&
+      extensionProperties.logMessagePrefix !==
+        `${extensionProperties.delimiterInsideMessage} `
+        ? `${extensionProperties.delimiterInsideMessage}`
+        : ''
+    }${
+      extensionProperties.includeFileNameAndLineNum
+        ? `${fileName}:${
+            lineOfLogMsg +
+            (extensionProperties.insertEmptyLineBeforeLogMessage ? 2 : 1)
+          }${extensionProperties.delimiterInsideMessage}`
+        : ''
+    }${
+      extensionProperties.insertEnclosingClass
+        ? classThatEncloseTheVar.length > 0
+          ? `${classThatEncloseTheVar}${extensionProperties.delimiterInsideMessage}`
+          : ``
+        : ''
+    }${
+      extensionProperties.insertEnclosingFunction
+        ? funcThatEncloseTheVar.length > 0
+          ? `${funcThatEncloseTheVar}${extensionProperties.delimiterInsideMessage}`
+          : ''
+        : ''
+    }${extensionProperties.logMessageSuffix}${this.quote})${semicolon}`;
   }
 
   private emptyBlockDebuggingMsg(
@@ -306,6 +362,42 @@ export class JSDebugMessage extends DebugMessage {
       );
       return;
     }
+    this.baseDebuggingMsg(
+      document,
+      textEditor,
+      lineOfLogMsg,
+      debuggingMsg,
+      extensionProperties.insertEmptyLineBeforeLogMessage,
+      extensionProperties.insertEmptyLineAfterLogMessage,
+    );
+  }
+  debugLine(
+    textEditor: TextEditorEdit,
+    document: TextDocument,
+    lineOfSelectedVar: number,
+    tabSize: number,
+    extensionProperties: ExtensionProperties,
+  ): void {
+    const lineOfLogMsg: number = lineOfSelectedVar;
+    const spacesBeforeMsg: string = this.spacesBeforeLogMsg(
+      document,
+      lineOfSelectedVar,
+      lineOfLogMsg,
+    );
+    const debuggingMsgContent: string = this.constructDebuggingLineMsgContent(
+      document,
+      lineOfSelectedVar,
+      lineOfLogMsg,
+      omit(extensionProperties, [
+        'wrapLogMessage',
+        'insertEmptyLineAfterLogMessage',
+      ]),
+    );
+    const debuggingMsg: string = this.constructDebuggingMsg(
+      extensionProperties,
+      debuggingMsgContent,
+      spacesBeforeMsg,
+    );
     this.baseDebuggingMsg(
       document,
       textEditor,
